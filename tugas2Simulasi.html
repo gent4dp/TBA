@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DFA Multi Simulator</title>
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    background: #f0f0f0;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+input {
+    padding: 10px;
+    width: 200px;
+}
+
+#output {
+    margin-top: 20px;
+    background: white;
+    padding: 15px;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 8px;
+}
+
+.active {
+    background: #007bff;
+    color: white;
+}
+
+.accept { color: green; }
+.reject { color: red; }
+.state { font-weight: bold; color: blue; }
+</style>
+</head>
+<body>
+
+<h1>DFA Simulator (3 Soal)</h1>
+
+<div>
+    <button onclick="setDFA(1)" id="btn1">Soal 1</button>
+    <button onclick="setDFA(2)" id="btn2">Soal 2</button>
+    <button onclick="setDFA(3)" id="btn3">Soal 3</button>
+</div>
+
+<p id="info"></p>
+
+<input type="text" id="inputString" placeholder="input string">
+<button onclick="runDFA()">Run</button>
+
+<div id="output"></div>
+
+<script>
+
+let currentDFA;
+
+// ======================
+// DEFINE ALL DFA
+// ======================
+
+const DFA1 = {
+    alphabet: ['0','1'],
+    start: 'q0',
+    final: ['q0'],
+    transitions: {
+        q0: { '0': 'q2', '1': 'q1' },
+        q1: { '0': 'q3', '1': 'q0' },
+        q2: { '0': 'q0', '1': 'q3' },
+        q3: { '0': 'q1', '1': 'q2' }
+    }
+};
+
+const DFA2 = {
+    alphabet: ['a','b'],
+    start: 'q0',
+    final: ['q0','q1','q2'],
+    transitions: {
+        q0: { 'a': 'q0', 'b': 'q1' },
+        q1: { 'a': 'q0', 'b': 'q2' },
+        q2: { 'a': 'q0', 'b': 'q3' },
+        q3: { 'a': 'q3', 'b': 'q2' }
+    }
+};
+
+const DFA3 = {
+    alphabet: ['a','b'],
+    start: 'q0',
+    final: ['q0'],
+    transitions: {
+        q0: { 'a': 'q1', 'b': 'q2' },
+        q1: { 'a': 'q2', 'b': 'q0' },
+        q2: { 'a': 'q2', 'b': 'q2' }
+    }
+};
+
+// ======================
+// SWITCH DFA
+// ======================
+
+function setDFA(n) {
+    document.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+
+    if (n === 1) {
+        currentDFA = DFA1;
+        document.getElementById("btn1").classList.add("active");
+    } else if (n === 2) {
+        currentDFA = DFA2;
+        document.getElementById("btn2").classList.add("active");
+    } else {
+        currentDFA = DFA3;
+        document.getElementById("btn3").classList.add("active");
+    }
+
+    document.getElementById("info").innerHTML =
+        `Alphabet: ${currentDFA.alphabet.join(', ')} | Start: ${currentDFA.start} | Final: ${currentDFA.final.join(', ')}`;
+
+    document.getElementById("output").innerHTML = "";
+}
+
+// ======================
+// RUN SIMULATION
+// ======================
+
+function runDFA() {
+    const input = document.getElementById("inputString").value;
+    let currentState = currentDFA.start;
+    let steps = `<p>Start at <span class="state">${currentState}</span></p>`;
+
+    for (let i = 0; i < input.length; i++) {
+        let symbol = input[i];
+
+        if (!currentDFA.alphabet.includes(symbol)) {
+            document.getElementById("output").innerHTML =
+                `<p class="reject">Simbol '${symbol}' tidak valid</p>`;
+            return;
+        }
+
+        let nextState = currentDFA.transitions[currentState][symbol];
+
+        steps += `<p>${currentState} --(${symbol})--> <span class="state">${nextState}</span></p>`;
+
+        currentState = nextState;
+    }
+
+    if (currentDFA.final.includes(currentState)) {
+        steps += `<p class="accept">DITERIMA (akhir: ${currentState})</p>`;
+    } else {
+        steps += `<p class="reject">DITOLAK (akhir: ${currentState})</p>`;
+    }
+
+    document.getElementById("output").innerHTML = steps;
+}
+
+// default load
+setDFA(1);
+
+</script>
+
+</body>
+</html>
